@@ -1,0 +1,24 @@
+name: msc
+channels:
+  - conda-forge
+dependencies:
+  - pip
+  - pip:
+    - -e .
+  - nbdime
+  - python-dotenv>=0.5.1
+  - setuptools
+  - wheel
+  - sphinx
+  - click
+  - coverage
+  - pytest-cov
+  - jupyter
+  - joblib
+  - nb_conda
+  - nbval
+  - pandas
+  - requests
+  - python>=3.9
+  - Sphinx
+  - flake8

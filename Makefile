@@ -22,8 +22,9 @@ endif
 
 ## Install Python Dependencies
 requirements: test_environment
-	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
-	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
+	@if [ "$(HAS_CONDA)" = False ]; then error "Conda not found"; fi
+	@echo "Checking if environment is ready"
+	@if [ ! -f ".done_env" ]; then conda env create -f environment.yaml --force; touch .done_env; else echo "Environment exists"; fi	
 
 ## Make Dataset
 data: requirements
@@ -31,6 +32,7 @@ data: requirements
 
 ## Delete all compiled Python files
 clean:
+	rm .env_done
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
 
