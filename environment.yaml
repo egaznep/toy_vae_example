@@ -22,3 +22,4 @@ dependencies:
   - python>=3.9
   - Sphinx
   - flake8
+  - h5py
