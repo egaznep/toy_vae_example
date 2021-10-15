@@ -22,7 +22,7 @@ endif
 
 ## Train model
 train:
-	$(PYTHON_INTERPRETER) src/models/train_model.py data/processed models/
+	$(PYTHON_INTERPRETER) src/models/train_model.py data/processed config/experiment.json
 
 ## Install Python Dependencies
 requirements: test_environment
