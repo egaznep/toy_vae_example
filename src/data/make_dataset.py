@@ -5,6 +5,7 @@ from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 import numpy as np
 import h5py
+from src.config.load_config import load_config
 
 # we don't have a "raw" dataset pulled from somewhere, 
 # rather we generate our own data.
@@ -55,17 +56,18 @@ def generate_sinusoids(seed=0, N=10000, fs=16000, duration=100, frequency_range=
 @click.command()
 @click.argument('input_filepath', type=click.Path(exists=True))
 @click.argument('output_filepath', type=click.Path())
-def main(input_filepath, output_filepath):
+@click.argument('generator_config_path', type=click.Path(exists=True))
+def main(input_filepath, output_filepath, generator_config_path):
     """ Runs data processing scripts to turn raw data from (../raw) into
         cleaned data ready to be analyzed (saved in ../processed).
     """
     logger = logging.getLogger(__name__)
     logger.info('making final data set from raw data')
 
-    # TODO: make it readable from a config file
-    N = 10000
+    # read generator config
+    config = load_config(generator_config_path)
 
-    sinusoids, frequencies, amplitudes, phases = generate_sinusoids(N)
+    sinusoids, frequencies, amplitudes, phases = generate_sinusoids(**config)
 
     # features file
     with h5py.File(Path(output_filepath) / 'X.hdf5', 'w') as X_file:
@@ -77,14 +79,13 @@ def main(input_filepath, output_filepath):
         y_file.create_dataset("amplitudes", data=amplitudes)
         y_file.create_dataset("phases", data=phases)
     
-    logger.info('completed generating N={} sinusoids, wrote to: {}'.format(N, output_filepath))
+    logger.info('completed generating N={} sinusoids, wrote to: {}'.format(len(sinusoids), output_filepath))
         
 
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)
 
-    # not used in this stub but often useful for finding various files
     project_dir = Path(__file__).resolve().parents[2]
 
     # find .env automagically by walking up directories until it's found, then
