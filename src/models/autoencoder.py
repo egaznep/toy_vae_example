@@ -30,3 +30,11 @@ class AE(nn.Module):
         z = self.encoder(x) 
         x_hat = self.decoder(z)
         return x_hat
+    
+    def to_latent_space(self, x):
+        z = self.encoder(x)
+        return z
+
+    def to_waveform(self,z):
+        x_hat = self.decoder(z)
+        return x_hat
