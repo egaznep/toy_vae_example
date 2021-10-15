@@ -80,7 +80,7 @@ target/
 
 # exclude data from source control by default
 /data/
-!**.gitkeep
+!**/*.gitkeep
 
 # Mac OS-specific storage files
 .DS_Store
