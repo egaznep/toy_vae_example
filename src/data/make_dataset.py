@@ -35,9 +35,9 @@ def generate_sinusoids(seed=0, N=10000, fs=16000, duration=100, frequency_range=
         return (arr - 1/2) * scale + mean
 
     rng = np.random.default_rng(seed)
-    frequencies = rescale_unif(rng.random(size=N), *frequency_range)[:,None]
-    amplitudes = rescale_unif(rng.random(size=N), *amplitude_range)[:,None]
-    phases = rescale_unif(rng.random(size=N), *phase_range)[:,None]
+    frequencies = rescale_unif(rng.random(size=N, dtype=np.float32), *frequency_range)[:,None]
+    amplitudes = rescale_unif(rng.random(size=N, dtype=np.float32), *amplitude_range)[:,None]
+    phases = rescale_unif(rng.random(size=N, dtype=np.float32), *phase_range)[:,None]
     
     t = (np.arange(duration)/fs)[None,:]
     
@@ -48,7 +48,7 @@ def generate_sinusoids(seed=0, N=10000, fs=16000, duration=100, frequency_range=
     #         yield sinusoid, frequencies[i], amplitudes[i], phases[i]
     # else:
     #     #generate vectorized and return
-    sinusoids = amplitudes*np.sin(2*np.pi*frequencies*t + phases)
+    sinusoids = amplitudes*np.sin(2*np.pi*frequencies*t + phases, dtype=np.float32)
     return sinusoids, frequencies, amplitudes, phases
 
 
