@@ -23,3 +23,7 @@ dependencies:
   - Sphinx
   - flake8
   - h5py
+  - pytorch
+  - pytorch-gpu
+  - scikit-learn
+  - tensorboard
