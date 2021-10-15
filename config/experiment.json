@@ -1,35 +1,36 @@
 {
-    "random":{
-       "seed":0
-    },
-    "experiment":{
-       "name":"epoch_10_batch_50"
-    },
-    "dataset":{
-       "name":"X"
-    },
-    "model":{
-        "path":"models/",
-        "name":"ae_3layer_relu.pt",
-        "loss":{
-            "name":"MSE"
-        },
-        "architecture":{
-            "type":"autoencoder.AE",
-            "num_latent":1
-        },
-        "optim":{
-            "name":"adam",
-            "lr":1e-3
-        }
-    },
-    "training":{
-       "num_epoch":10
-    },
-    "train_loader":{
-       "batch_size":50
-    },
-    "test_loader":{
-       
-    }
- }
+   "random": {
+      "seed": 0
+   },
+   "experiment": {
+      "name": "epoch_10_batch_50"
+   },
+   "dataset": {
+      "name": "X"
+   },
+   "model": {
+      "path": "models/",
+      "name": "ae_3layer_relu.pt",
+      "loss": {
+         "name": "MSE"
+      },
+      "architecture": {
+         "type": "autoencoder.AE",
+         "num_latent": 1
+      },
+      "optim": {
+         "name": "adam",
+         "lr": 1e-3
+      }
+   },
+   "training": {
+      "num_epoch": 100
+   },
+   "train_loader": {
+      "batch_size": 50
+   },
+   "test_loader": {},
+   "prediction": {
+      "num_samples": 4
+   }
+}

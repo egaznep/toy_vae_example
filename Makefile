@@ -20,6 +20,10 @@ endif
 # COMMANDS                                                                      #
 #################################################################################
 
+## Run inference
+predict:
+	$(PYTHON_INTERPRETER) src/models/predict_model.py data/processed config/experiment.json
+
 ## Train model
 train:
 	$(PYTHON_INTERPRETER) src/models/train_model.py data/processed config/experiment.json
