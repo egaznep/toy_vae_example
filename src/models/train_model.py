@@ -67,9 +67,9 @@ class Training:
     def calculate_loss_stats(loss_list,is_train=True):
         loss_tensor = torch.stack(loss_list).detach()
 
-        avg = torch.mean(loss_tensor).cpu().numpy()
-        max = torch.max(loss_tensor).cpu().numpy()
-        min = torch.min(loss_tensor).cpu().numpy()
+        avg = torch.mean(loss_tensor).cpu().numpy()[()]
+        max = torch.max(loss_tensor).cpu().numpy()[()]
+        min = torch.min(loss_tensor).cpu().numpy()[()]
 
         mode = 'Train' if is_train else 'Test'
         logging.info("{}_loss: (Min, Avg, Max) = {}".format(mode, (min, avg, max)))
