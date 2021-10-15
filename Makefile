@@ -29,6 +29,7 @@ requirements: test_environment
 ## Make Dataset
 data: requirements
 	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
+	$(PYTHON_INTERPRETER) src/data/split_dataset.py data/processed data/processed
 
 ## Delete all compiled Python files
 clean:
