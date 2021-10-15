@@ -20,6 +20,10 @@ endif
 # COMMANDS                                                                      #
 #################################################################################
 
+## Train model
+train:
+	$(PYTHON_INTERPRETER) src/models/train_model.py data/processed models/
+
 ## Install Python Dependencies
 requirements: test_environment
 	@if [ "$(HAS_CONDA)" = False ]; then error "Conda not found"; fi
