@@ -3,8 +3,12 @@ import torch
 import h5py
 
 class Waveform_dataset(torch.utils.data.Dataset):
-    def __init__(self, dataset_path, file_name=('X.hdf5'), seed=0):
+    def __init__(self, dataset_path, file_name=('X.hdf5'), seed=0, size=None):
         self._init_dataset(dataset_path, file_name)
+        
+        # allow limitation of max samples
+        if size is not None and size < self.size:
+            self.size = size
 
     def __len__(self):
         return self.size
