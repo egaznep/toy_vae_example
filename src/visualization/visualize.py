@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib.animation as anim
 
 import numpy as np
 
@@ -20,3 +21,25 @@ def visualize_signal_pairs(t, inputs, results, labels=None):
     plt.suptitle('Input & Outputs', fontsize=26)
     plt.tight_layout()
     plt.show()
+
+def animate_signal_pairs(t, inputs, results, labels=None):
+    fig = plt.figure(figsize=(8,8))
+    ax = plt.axes()
+    ax.set_xlim(find_limits(t))
+    ax.set_ylim(find_limits(merge_into_flat_one(inputs, results)))
+    line1, = ax.plot([],[])
+    line2, = ax.plot([],[])
+    
+    def init():
+        line1.set_data([],[])
+        line2.set_data([],[])
+        return line1,line2,
+    
+    def animate(i):
+        line1.set_data(t,inputs[i])
+        line2.set_data(t,results[i])
+        return line1,line2,
+    
+    animation = anim.FuncAnimation(fig, animate, init_func=init, frames=2000, interval=10, blit=True)
+    plt.close()
+    return animation
