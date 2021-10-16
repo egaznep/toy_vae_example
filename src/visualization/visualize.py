@@ -1,14 +1,18 @@
 import matplotlib.pyplot as plt
 
-def visualize_signal_pairs(t, results, labels=None):
+import numpy as np
+
+from src.common import find_limits, merge_into_flat_one
+
+def visualize_signal_pairs(t, inputs, results, labels=None):
     N = len(results)
     
     plt.figure(figsize=(8,8))
     
-    for i, (x, x_hat)  in enumerate(results):
+    for i, (x, x_hat) in enumerate(zip(inputs, results)):
         plt.subplot(N,1,i+1)
-        plt.plot(t,x, label='$x$')
-        plt.plot(t,x_hat, label='$\hat{x}$')
+        plt.plot(t.ravel(),x.ravel(), label='$x$')
+        plt.plot(t.ravel(),x_hat.ravel(), label='$\hat{x}$')
         plt.xlabel('time (s)', fontsize=20)
         plt.ylabel('amplitude', fontsize=20)
         plt.legend()

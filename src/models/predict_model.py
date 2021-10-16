@@ -39,7 +39,7 @@ class Prediction:
             for i, x in enumerate(test_loader):
                 x = x.to(self.device)
                 x_hat = self.model(x)
-                return_list.append((x.cpu().numpy().ravel(), x_hat.cpu().numpy().ravel()))
+                return_list.append(x_hat.cpu().numpy().ravel())
         return return_list
         
     def to_latent_space(self, test_loader):
@@ -51,7 +51,7 @@ class Prediction:
                 x = x.to(self.device)
                 z = self.model.to_latent_space(x)
                 x_hat = self.model.to_waveform(z)
-                return_list.append((x.cpu().numpy().ravel(), z.cpu().numpy().ravel()))
+                return_list.append(z.cpu().numpy().ravel())
         return return_list
 
     def to_waveform(self, test_loader):
@@ -62,7 +62,7 @@ class Prediction:
             for i, z in enumerate(test_loader):
                 z = z.to(self.device)
                 x_hat = self.model.to_waveform(z)
-                return_list.append((z.cpu().numpy().ravel(), x_hat.cpu().numpy().ravel()))
+                return_list.append(x_hat.cpu().numpy().ravel())
         return return_list
 
 @click.command()
@@ -94,11 +94,12 @@ def main(data_path, experiment_cfg_path):
 
     predictor = Prediction(cfg['model'], model_save_path, **cfg['training'])
 
+    inputs = [x.numpy() for x in test_loader]
     results = predictor.predict(test_loader)
 
     #automatically visualize if called as the main script
     if __name__ == '__main__':
-        visualize_signal_pairs(t, results)
+        visualize_signal_pairs(t, inputs, results)
 
 
 

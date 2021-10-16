@@ -21,3 +21,20 @@ class Waveform_dataset(torch.utils.data.Dataset):
         with h5py.File(dataset_path / file_name, 'r') as X_file:
             self.X = X_file['sinusoids'][:]
             self.size = len(self.X)
+
+
+class OnTheFlyDataset(torch.utils.data.Dataset):
+    def __init__(self, array, size=None):
+        self.X = array
+        
+        # allow limitation of max samples
+        if size is not None and size < self.size:
+            self.size = size
+        else:
+            self.size = len(self.X)
+    
+    def __len__(self):
+        return self.size
+
+    def __getitem__(self,idx):
+        return torch.from_numpy(self.X[idx])

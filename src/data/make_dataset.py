@@ -7,9 +7,16 @@ import numpy as np
 import h5py
 from src.config.load_config import load_config
 
+def generate_sinusoids(frequencies, amplitudes, phases, duration, fs, *args, **kwargs):
+    t = (np.arange(duration)/fs)[None,:]
+    sinusoids = amplitudes*np.sin(2*np.pi*frequencies*t + phases, dtype=np.float32)
+    sinusoids = sinusoids.astype(np.float32)
+    
+    return t, sinusoids
+
 # we don't have a "raw" dataset pulled from somewhere, 
 # rather we generate our own data.
-def generate_sinusoids(seed=0, N=10000, fs=16000, duration=100, frequency_range=[320, 8000], amplitude_range=[0,10], phase_range=[-np.pi, np.pi], *args, **kwargs):
+def generate_random_sinusoids(seed=0, N=10000, fs=16000, duration=100, frequency_range=[320, 8000], amplitude_range=[0,10], phase_range=[-np.pi, np.pi], *args, **kwargs):
     """ Returns sinusoids.
 
     Generates sinusoids according to the configuration (with fixed sampling 
@@ -40,16 +47,8 @@ def generate_sinusoids(seed=0, N=10000, fs=16000, duration=100, frequency_range=
     amplitudes = rescale_unif(rng.random(size=N, dtype=np.float32), *amplitude_range)[:,None]
     phases = rescale_unif(rng.random(size=N, dtype=np.float32), *phase_range)[:,None]
     
-    t = (np.arange(duration)/fs)[None,:]
-    
-    # if generator:
-    #     #generate one by one and return
-    #     for i in range(N):
-    #         sinusoid = amplitudes[i]*np.sin(2*np.pi*frequencies[i]*t + phases[i])
-    #         yield sinusoid, frequencies[i], amplitudes[i], phases[i]
-    # else:
-    #     #generate vectorized and return
-    sinusoids = amplitudes*np.sin(2*np.pi*frequencies*t + phases, dtype=np.float32)
+    sinusoids, _ = generate_sinusoids(frequencies, amplitudes, phases, duration, fs)
+
     return sinusoids, frequencies, amplitudes, phases
 
 
@@ -67,7 +66,7 @@ def main(input_filepath, output_filepath, generator_config_path):
     # read generator config
     config = load_config(generator_config_path)
 
-    sinusoids, frequencies, amplitudes, phases = generate_sinusoids(**config)
+    sinusoids, frequencies, amplitudes, phases = generate_random_sinusoids(**config)
 
     # features file
     with h5py.File(Path(output_filepath) / 'X.hdf5', 'w') as X_file:
