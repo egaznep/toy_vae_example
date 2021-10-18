@@ -3,10 +3,11 @@
       "seed": 0
    },
    "experiment": {
-      "name": "epoch_10_batch_50"
+      "name": "epoch_100_batch_50"
    },
    "dataset": {
-      "name": "X"
+      "name": "X",
+      "config_path": "config/data_generator.json"
    },
    "model": {
       "path": "models/",
@@ -16,11 +17,13 @@
       },
       "architecture": {
          "type": "autoencoder.AE",
-         "num_latent": 1
+         "num_latent": 1,
+         "num_input": 100
       },
       "optim": {
          "name": "adam",
-         "lr": 1e-3
+         "lr": 1e-4,
+         "weight_decay": 1e-8
       }
    },
    "training": {
@@ -32,5 +35,8 @@
    "test_loader": {},
    "prediction": {
       "num_samples": 4
+   },
+   "tensorboard": {
+      "save_path": "reports/tb"
    }
 }

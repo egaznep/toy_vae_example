@@ -29,6 +29,7 @@ Project Organization
     │
     ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
     │   └── figures        <- Generated graphics and figures to be used in reporting
+    │   ├── tb             <- TensorBoard writer outputs (tensorboard files are excluded in .gitignore).
     │
     ├── environment.yaml   <- The requirements file for reproducing the analysis environment
     │

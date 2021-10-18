@@ -4,8 +4,11 @@ from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 
 import torch
+import torch.autograd
 from torch.utils.data import dataset
 import torch.utils.data.dataloader
+
+import tensorboardX
 
 import autoencoder
 import src.data.load_dataset
@@ -13,11 +16,17 @@ from src.config.load_config import load_config
 
 
 class Training:
-    def __init__(self, model_config, seed=0, num_epoch=100, *args, **kwargs):
-        self.seed = seed
-        self.cfg = model_config
-        self.num_epoch = num_epoch
+    def __init__(self, config, *args, **kwargs):
+        # parse config
+        
+        self.seed = config['random']['seed']
+        self.num_epoch = config['training']['num_epoch']
+        self.dim_input = (1,config['model']['architecture']['num_input'])
+        self.cfg = config['model']
+
         self.setup_cuda()
+        self.dummy_input = torch.autograd.Variable(torch.zeros(self.dim_input).to(self.device))
+        self.setup_tensorboard(config['experiment']['name'],**config['tensorboard'])
         self.setup_model(**self.cfg)
 
     def setup_cuda(self, cuda_device_id=0):
@@ -31,6 +40,7 @@ class Training:
         self.model = autoencoder.AE(**architecture).to(self.device)
         self.loss_function = torch.nn.MSELoss()
         self.optim = torch.optim.Adam(self.model.parameters(), lr=optim['lr'])
+        self.add_tensorboard_graph(self.model)
 
     def train(self, train_loader, test_loader, model_save_path):
         logging.info('Starting training')
@@ -79,6 +89,15 @@ class Training:
 
         mode = 'Train' if is_train else 'Test'
         logging.info("Epoch: {}\t {}_loss: (Min, Avg, Max) = {}".format(self.epoch+1, mode, (min, avg, max)))
+        self.writer.add_scalar(mode + 'Loss', avg, self.epoch)
+
+    def setup_tensorboard(self, folder_name, save_path, **kwargs):
+        path = Path(save_path) / folder_name
+        self.writer = tensorboardX.SummaryWriter(path)
+    
+    def add_tensorboard_graph(self, model):
+        self.writer.add_graph(self.model, self.dummy_input)
+        pass
 
 @click.command()
 @click.argument('data_path', type=click.Path(exists=True))
@@ -103,7 +122,7 @@ def main(data_path, experiment_cfg_path):
     test_loader = torch.utils.data.dataloader.DataLoader(dataset=test_dataset, **cfg['test_loader'])
 
     # model
-    trainer = Training(cfg['model'], **cfg['training'])
+    trainer = Training(cfg)
     model_save_name = "{}_{}".format(cfg['experiment']['name'], cfg['model']['name'])
     model_save_path = Path(cfg['model']['path']) / model_save_name 
 
