@@ -1,6 +1,9 @@
 # custom
 .done_env
 
+# tensorboard outputs
+reports/tb/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
