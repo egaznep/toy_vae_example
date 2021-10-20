@@ -30,9 +30,11 @@
       "num_epoch": 100
    },
    "train_loader": {
-      "batch_size": 50
+      "batch_size": 40
    },
-   "test_loader": {},
+   "test_loader": {
+      "batch_size": 400
+   },
    "prediction": {
       "num_samples": 4
    },
