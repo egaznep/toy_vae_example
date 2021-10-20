@@ -49,3 +49,7 @@ class AE(nn.Module):
     def to_waveform(self,z):
         x_hat = self.decoder(z)
         return x_hat
+
+    def loss(self, x, x_hat):
+        #TODO: make it configurable
+        return torch.nn.MSELoss()(x, x_hat)

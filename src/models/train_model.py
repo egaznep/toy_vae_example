@@ -3,6 +3,8 @@ import logging
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 
+import importlib
+
 import torch
 import torch.autograd
 from torch.utils.data import dataset
@@ -10,10 +12,10 @@ import torch.utils.data.dataloader
 
 import tensorboardX
 
-import autoencoder
+import src.models
 import src.data.load_dataset
 from src.config.load_config import load_config
-
+from src.common import get_constructor
 
 class Training:
     def __init__(self, config, *args, **kwargs):
@@ -37,8 +39,8 @@ class Training:
         torch.manual_seed(self.seed)
 
     def setup_model(self, architecture, loss, optim, **kwargs):
-        self.model = autoencoder.AE(**architecture).to(self.device)
-        self.loss_function = torch.nn.MSELoss()
+        constructor = get_constructor('src.models', architecture['type'])
+        self.model = constructor(**architecture).to(self.device)
         self.optim = torch.optim.Adam(self.model.parameters(), lr=optim['lr'])
         self.add_tensorboard_graph(self.model)
 
@@ -59,7 +61,7 @@ class Training:
 
             self.optim.zero_grad()
             x_hat = self.model(x)
-            loss = self.loss_function(x, x_hat)
+            loss = self.model.loss(x, x_hat)
             loss.backward()
             self.optim.step()
             loss_list.append(loss)
@@ -74,7 +76,7 @@ class Training:
             for i, x in enumerate(test_loader):
                 x = x.to(self.device)
                 x_hat = self.model(x)
-                loss = self.loss_function(x, x_hat)
+                loss = self.model.loss(x, x_hat)
                 loss_list.append(loss)
         
         self.calculate_loss_stats(loss_list, False)

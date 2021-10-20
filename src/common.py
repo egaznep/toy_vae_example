@@ -1,4 +1,5 @@
 import numpy as np
+import importlib
 
 def find_limits(x):
     """ Return limits of an array
@@ -24,3 +25,25 @@ def merge_into_flat_one(*args):
     for arg in args:
         flat.append(np.asarray(arg).ravel())
     return np.concatenate(flat)
+
+def get_constructor(start, type):
+    """ Get constructor to the object described by string
+    A constrained "eval" alternative for this specific purpose
+
+    Args:
+        start (string): Package to start looking for the object
+        type (string): Type string, tokenized with '.' (python syntax) 
+
+    Returns:
+        callable: Constructor of the object.
+    """
+    tokens = type.split('.')
+    N_tokens = len(tokens)
+
+    for i, k in enumerate(tokens):
+        if i+1 < N_tokens:
+            start = start + '.' + k
+            module = importlib.import_module(start)
+        else:
+            result = getattr(module, k)
+    return result
