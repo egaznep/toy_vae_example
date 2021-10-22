@@ -47,8 +47,7 @@ def generate_random_sinusoids(seed=0, N=10000, fs=16000, duration=100, frequency
     amplitudes = rescale_unif(rng.random(size=N, dtype=np.float32), *amplitude_range)[:,None]
     phases = rescale_unif(rng.random(size=N, dtype=np.float32), *phase_range)[:,None]
     
-    sinusoids, _ = generate_sinusoids(frequencies, amplitudes, phases, duration, fs)
-
+    _, sinusoids = generate_sinusoids(frequencies, amplitudes, phases, duration, fs)
     return sinusoids, frequencies, amplitudes, phases
 
 
