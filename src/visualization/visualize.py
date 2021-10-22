@@ -40,6 +40,6 @@ def animate_signal_pairs(t, inputs, results, labels=None):
         line2.set_data(t,results[i])
         return line1,line2,
     
-    animation = anim.FuncAnimation(fig, animate, init_func=init, frames=2000, interval=10, blit=True)
+    animation = anim.FuncAnimation(fig, animate, frames=len(inputs), init_func=init, interval=10, blit=True)
     plt.close()
     return animation
