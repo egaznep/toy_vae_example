@@ -1,0 +1,13 @@
+seed: 0
+N: 5000
+fs: 16000
+duration: 100
+frequency_range:
+- 800
+- 800
+amplitude_range:
+- 0.1
+- 1
+phase_range:
+- -3.1415
+- 3.1415

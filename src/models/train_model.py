@@ -50,7 +50,7 @@ class Training:
             self.epoch = i
             self.train_epoch(train_loader)
             self.test_epoch(test_loader)
-
+        logging.info('Saved model to:{}'.format(model_save_path))
         torch.save(self.model.state_dict(), model_save_path)
 
     def train_epoch(self, train_loader):
@@ -125,8 +125,7 @@ def main(data_path, experiment_cfg_path):
 
     # model
     trainer = Training(cfg)
-    model_save_name = "{}_{}".format(cfg['experiment']['name'], cfg['model']['name'])
-    model_save_path = Path(cfg['model']['path']) / model_save_name 
+    model_save_path = Path(cfg['model']['path']) / cfg['model']['name'] 
 
     trainer.train(train_loader, test_loader, model_save_path)
 

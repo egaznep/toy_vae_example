@@ -90,8 +90,7 @@ def main(data_path, experiment_cfg_path):
     test_loader = torch.utils.data.dataloader.DataLoader(dataset=test_dataset, **cfg['test_loader'])
 
     # model
-    model_save_name = "{}_{}".format(cfg['experiment']['name'], cfg['model']['name'])
-    model_save_path = project_dir / cfg['model']['path'] / model_save_name 
+    model_save_path = Path(cfg['model']['path']) / cfg['model']['name'] 
 
     predictor = Prediction(cfg['model'], model_save_path, **cfg['training'])
 

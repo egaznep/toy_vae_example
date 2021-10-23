@@ -1,0 +1,35 @@
+random:
+  seed: 0
+experiment:
+  name: "{date}-{num_epoch}epoch-{batch_size}batch-"
+dataset:
+  name: X
+  config_path: config/data_generator.yaml
+model:
+  path: models/
+  name: "{architecture_name}-3layer-relu.pt"
+  loss:
+    name: MSE
+  architecture:
+    name: &architecture_name VAE
+    type: autoencoder.VAE
+    num_latent: 2
+    num_input: 100
+  optim:
+    name: adam
+    lr: 0.001
+    weight_decay: 1.0e-08
+training:
+  num_epoch: &num_epoch 400
+train_loader:
+  batch_size: &batch_size 100
+test_loader:
+  batch_size: 400
+prediction:
+  num_samples: 4
+tensorboard:
+  save_path: reports/tb
+print_handlers:
+  num_epoch: *num_epoch
+  architecture_name: *architecture_name
+  batch_size: *batch_size

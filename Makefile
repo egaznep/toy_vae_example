@@ -22,11 +22,11 @@ endif
 
 ## Run inference
 predict:
-	$(PYTHON_INTERPRETER) src/models/predict_model.py data/processed config/experiment.json
+	$(PYTHON_INTERPRETER) src/models/predict_model.py data/processed config/experiment.yaml
 
 ## Train model
 train:
-	$(PYTHON_INTERPRETER) src/models/train_model.py data/processed config/experiment.json
+	$(PYTHON_INTERPRETER) src/models/train_model.py data/processed config/experiment.yaml
 
 ## Install Python Dependencies
 requirements: test_environment
@@ -36,7 +36,7 @@ requirements: test_environment
 
 ## Make Dataset
 data: requirements
-	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed config/data_generator.json
+	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed config/data_generator.yaml
 	$(PYTHON_INTERPRETER) src/data/split_dataset.py data/processed data/processed
 
 ## Delete all compiled Python files

@@ -27,3 +27,4 @@ dependencies:
   - pytorch-gpu
   - scikit-learn
   - tensorboard
+  - pyyaml
