@@ -1,5 +1,8 @@
 import numpy as np
 import importlib
+import ctypes
+import sys
+from pathlib import Path
 
 def find_limits(x):
     """ Return limits of an array
@@ -47,3 +50,13 @@ def get_constructor(start, type):
         else:
             result = getattr(module, k)
     return result
+
+def magma_init():
+    env_path = Path(sys.executable).parent.parent.resolve()
+    magma_path = env_path / 'lib/libmagma.so'
+    try:
+        libmagma = ctypes.cdll.LoadLibrary(magma_path)
+        libmagma.magma_init()
+    except OSError as e:
+        print('Path not found:', magma_path)
+        print(repr(e))

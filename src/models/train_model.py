@@ -15,7 +15,7 @@ import tensorboardX
 import src.models
 import src.data.load_dataset
 from src.config.load_config import load_config
-from src.common import get_constructor
+from src.common import get_constructor, magma_init
 
 class Training:
     def __init__(self, config, *args, **kwargs):
@@ -37,6 +37,7 @@ class Training:
         self.device = torch.device('cuda')
         torch.cuda.manual_seed_all(self.seed)
         torch.manual_seed(self.seed)
+        magma_init()
 
     def setup_model(self, architecture, loss, optim, **kwargs):
         constructor = get_constructor('src.models', architecture['type'])

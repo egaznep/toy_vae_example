@@ -13,7 +13,7 @@ import src.models.autoencoder
 import src.data.load_dataset
 from src.config.load_config import load_config
 from src.visualization.visualize import visualize_signal_pairs
-from src.common import get_constructor 
+from src.common import get_constructor, magma_init
 
 
 class Prediction:
@@ -27,6 +27,7 @@ class Prediction:
         torch.backends.cuda.fastest = True
         torch.cuda.set_device(cuda_device_id)
         self.device = torch.device('cuda')
+        magma_init()
 
     def setup_model(self, architecture, *args, **kwargs):        
         constructor = get_constructor('src.models', architecture['type'])
