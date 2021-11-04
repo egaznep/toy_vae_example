@@ -9,6 +9,8 @@ class Waveform_dataset(torch.utils.data.Dataset):
         # allow limitation of max samples
         if size is not None and size < self.size:
             self.size = size
+        else:
+            self.size = len(self.X)
 
     def __len__(self):
         return self.size
