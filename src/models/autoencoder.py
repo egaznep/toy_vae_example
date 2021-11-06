@@ -8,41 +8,43 @@ from torch.nn.modules.activation import ReLU
 import functools
 
 class VAE(nn.Module):
-    def __init__(self, num_input=100, num_latent=3, *args, **kwargs):
+    def __init__(self, num_input=100, num_latent=3, convex_factor=0.05, *args, **kwargs):
         super(VAE, self).__init__()
         self.num_input = num_input
         self.num_latent = num_latent
         self.encoder = torch.nn.Sequential(
-            torch.nn.Dropout(p=0.2),
             torch.nn.Linear(num_input, 50),
-            torch.nn.BatchNorm1d(50),
-            torch.nn.ReLU(),
+            torch.nn.SiLU(),
             torch.nn.Dropout(p=0.2),
             torch.nn.Linear(50, 25),
-            torch.nn.BatchNorm1d(25),
-            torch.nn.ReLU(),
-            torch.nn.Dropout(p=0.2),
+            torch.nn.SiLU(),
+            torch.nn.Linear(25, 25),
+            torch.nn.SiLU(),
             torch.nn.Linear(25, 12),
-            torch.nn.BatchNorm1d(12),
-            torch.nn.ReLU(),
-            torch.nn.Dropout(p=0.2),
+            torch.nn.SiLU(),
             torch.nn.Linear(12, 2*num_latent)
         )
 
         self.decoder = torch.nn.Sequential(
             torch.nn.Linear(num_latent, 12), 
-            torch.nn.ReLU(),
-            torch.nn.Dropout(p=0.2),
+            torch.nn.SiLU(),
             torch.nn.Linear(12, 25),
-            torch.nn.ReLU(),
+            torch.nn.SiLU(),
+            torch.nn.Linear(25, 25),
+            torch.nn.SiLU(),
             torch.nn.Dropout(p=0.2),
             torch.nn.Linear(25, 50),
-            torch.nn.ReLU(),
-            torch.nn.Dropout(p=0.2),
+            torch.nn.SiLU(),
             torch.nn.Linear(50, num_input),
         )
-        self.N = torch.distributions.kl.Normal(0,1)
-        self.Z = torch.distributions.kl.Normal(0,1) # will be updated
+        self.N = torch.distributions.kl.MultivariateNormal(torch.Tensor([[0]]),torch.Tensor([[1]]))
+        self.Z = torch.distributions.kl.MultivariateNormal(torch.Tensor([[0]]),torch.Tensor([[1]]))
+        self.convex_factor = convex_factor
+        self.loggable_losses = {
+            'loss': self.loss, 
+            'kl_div': self.kl_div, 
+            'rec_loss': self.rec_loss
+            }
 
     def forward(self, x):
         mu_and_sigma = self.encoder(x)
@@ -50,8 +52,9 @@ class VAE(nn.Module):
         self.sigma = torch.exp(mu_and_sigma[...,self.num_latent:]/2)
         self.eps = torch.autograd.Variable(torch.randn_like(self.mu), requires_grad=False)
         self.z = self.mu + self.eps * self.sigma
-        self.Z.loc = self.mu
-        self.Z.scale = self.sigma
+        self.Z = torch.distributions.kl.MultivariateNormal(self.mu,torch.diag_embed(self.sigma**2))
+        self.N = torch.distributions.kl.MultivariateNormal(torch.zeros_like(self.mu),torch.diag_embed(torch.ones_like(self.sigma)))
+        
         x_hat = self.decoder(self.z)
         return x_hat
 
@@ -71,9 +74,15 @@ class VAE(nn.Module):
         self.sigma = torch.exp(mu_and_sigma[...,self.num_latent:]/2)
         return self.mu
     
+    def kl_div(self, x=None, x_hat=None):
+        return torch.mean(torch.distributions.kl.kl_divergence(self.Z, self.N)) / self.num_latent
+
+    def rec_loss(self, x, x_hat):
+        return F.mse_loss(x, x_hat) / F.mse_loss(x,torch.zeros_like(x, device=self.device)) # normalize by RMS power of either
+
     def loss(self, x, x_hat):
-        kl_div = torch.mean(torch.distributions.kl.kl_divergence(self.Z, self.N)) / self.num_input
-        rec_loss = F.mse_loss(x, x_hat)
+        kl_div = self.convex_factor * self.kl_div() 
+        rec_loss = (1-self.convex_factor) * self.rec_loss(x,x_hat)
         return kl_div + rec_loss
 
     def to(self, *args, **kwargs):
@@ -83,10 +92,10 @@ class VAE(nn.Module):
             device = args[0]
         self.device = device
         # pass distributions to device
-        mean = torch.tensor(0, device=device)
-        variance = torch.tensor(1, device=device)
-        self.N = torch.distributions.kl.Normal(mean, variance)
-        self.Z = torch.distributions.kl.Normal(mean, variance)
+        # mean = torch.tensor(0, device=device)
+        # variance = torch.tensor(1, device=device)
+        # self.N = torch.distributions.kl.Normal(mean, variance)
+        # self.Z = torch.distributions.kl.Normal(mean, variance)
 
         # then call overridden method
         return super(VAE, self).to(*args, **kwargs) 
@@ -125,6 +134,10 @@ class AE(nn.Module):
             torch.nn.Dropout(p=0.2),
             torch.nn.Linear(50, num_input),
         )
+
+        self.loggable_losses={
+            'loss', self.loss
+            }
 
     def forward(self, x):
         z = self.encoder(x) 
