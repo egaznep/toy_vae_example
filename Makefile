@@ -39,8 +39,12 @@ data: requirements
 	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed config/data_generator.yaml
 	$(PYTHON_INTERPRETER) src/data/split_dataset.py data/processed data/processed
 
-## Delete all compiled Python files
-clean:
+## Clean Tensorboard reports
+clean_tb:
+	rm -rf reports/tb/*
+
+## Reset repository (delete pyc's, clear experiment logs etc.)
+clean: clean_tb
 	rm .env_done
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
