@@ -5,12 +5,13 @@ import numpy as np
 
 from src.common import find_limits, merge_into_flat_one
 
-def visualize_signal_pairs(t, inputs, results, labels=None):
-    N = len(results)
+def visualize_signal_pairs(t, inputs, results, labels=None, N=None):
+    if N is None:
+        N = len(results)
     
     plt.figure(figsize=(8,8))
     
-    for i, (x, x_hat) in enumerate(zip(inputs, results)):
+    for i, (x, x_hat) in enumerate(zip(inputs[:N], results[:N])):
         plt.subplot(N,1,i+1)
         plt.plot(t.ravel(),x.ravel(), label='$x$')
         plt.plot(t.ravel(),x_hat.ravel(), label='$\hat{x}$')
