@@ -26,5 +26,7 @@ dependencies:
   - pytorch
   - pytorch-gpu
   - scikit-learn
+  - tensorboardx
   - tensorboard
   - pyyaml
+  - ignite

@@ -1,13 +1,13 @@
 random:
   seed: 0
 experiment:
-  name: "{date}-{num_epoch}epoch-{batch_size}batch-"
+  name: "{date}-{num_epoch}e-{batch_size}b-"
 dataset:
   name: X
   config_path: config/data_generator.yaml
 model:
   path: models/
-  name: "{architecture_name}-3layer-relu.pt"
+  name: "{architecture_name}-4layer-silu-nodo-nobn-{coef}.pt"
   loss:
     name: MSE
   architecture:
@@ -15,12 +15,23 @@ model:
     type: autoencoder.VAE
     num_latent: 2
     num_input: 100
+    convex_factor: &coef 0.05
   optim:
     name: adam
     lr: 0.001
     weight_decay: 1.0e-08
 training:
   num_epoch: &num_epoch 400
+  early_stopping: 
+    patience: 10
+    min_delta: 1.0e-04
+    cumulative_delta: True
+  reduce_lr_plateau:
+    mode: 'min'
+    factor: 0.2
+    patience: 5
+    threshold: 1.0e-04
+    verbose: True
 train_loader:
   batch_size: &batch_size 100
 test_loader:
@@ -33,3 +44,4 @@ print_handlers:
   num_epoch: *num_epoch
   architecture_name: *architecture_name
   batch_size: *batch_size
+  coef: *coef
