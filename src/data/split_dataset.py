@@ -4,12 +4,16 @@ import logging
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 import h5py
-import sklearn.model_selection
+from sklearn.model_selection import train_test_split
+
+from src.config.load_config import load_config
+from copy import deepcopy
 
 @click.command()
+@click.argument('config_path', type=click.Path(exists=True))
 @click.argument('input_filepath', type=click.Path(exists=True))
 @click.argument('output_filepath', type=click.Path())
-def main(input_filepath, output_filepath):
+def main(config_path, input_filepath, output_filepath):
     """ Runs scripts to split processed data (from ../processed) 
         into train and test datasets, again in (../processed).
     """
@@ -17,44 +21,60 @@ def main(input_filepath, output_filepath):
     logger.info('Splitting train and test...')
 
     # TODO: make it readable from a config file
-    train_percent = 0.8
+    cfg = load_config(config_path)
+    percent = deepcopy(cfg['percent'])
+    suffixes = cfg['suffix']
+    arrays = {}
+    # identifiers for label arrays
+    label_arrays = []
 
-    # features file
+    # ensure that we have blank files for splits
+    for d in ['X', 'y']:
+        for suffix in suffixes:
+            with h5py.File(Path(output_filepath) / f'{d}_{suffix}.hdf5', 'w') as X_file:
+                pass
+
+    # load features
     with h5py.File(Path(input_filepath) / 'X.hdf5', 'r') as X_file:
-        sinusoids = X_file['sinusoids'][:]
-        N = len(sinusoids)
+        N = None
+        for entry in X_file:
+            arrays[entry] = X_file[entry][:]
+            if N is None:
+                N = len(arrays[entry])
     
-    # labels file
+    # load labels
     with h5py.File(Path(input_filepath) / 'y.hdf5', 'r') as y_file:
-        frequencies = y_file['frequencies'][:]
-        amplitudes = y_file['amplitudes'][:]
-        phases = y_file['phases'][:]
+        for entry in y_file:
+            assert entry not in arrays # throw an exception if data and labels have entry with same name
+            arrays[entry] = y_file[entry][:]
+            label_arrays.append(entry)
 
-    s_tr, s_te, f_tr, f_te, a_tr, a_te, p_tr, p_te = \
-        sklearn.model_selection.train_test_split(sinusoids, frequencies,
-        amplitudes, phases, train_size=train_percent, random_state=0)
+    # perform split
+    assert sum(percent) == 1., f"percent must add to 1, but it adds to sum{percent} = {sum(percent)}"
+    remainder = [arrays[x] for x in arrays]
+    for i, (suffix, per) in enumerate(zip(suffixes,percent)):
+        # split
+        print('Aye!', len(suffixes), len(arrays), percent, i, per)
+        if i == len(suffixes)-1:
+            current_split = remainder
+        else:
+            splits = train_test_split(*remainder, test_size=1-per, random_state=0)
+            current_split = splits[::2]
+        # save current
+        for split,entry in zip(current_split,arrays):
+            print(len(split), suffix, entry)
+            if entry not in label_arrays:
+                with h5py.File(Path(output_filepath) / f'X_{suffix}.hdf5', 'a') as X_file:
+                    X_file.create_dataset(entry, data=split)
+            else:
+                with h5py.File(Path(output_filepath) / f'y_{suffix}.hdf5', 'a') as y_file:
+                    y_file.create_dataset(entry, data=split)
 
-    # features train
-    with h5py.File(Path(output_filepath) / 'X_train.hdf5', 'w') as X_file:
-        X_file.create_dataset("sinusoids", data=s_tr)
-    # features test
-    with h5py.File(Path(output_filepath) / 'X_test.hdf5', 'w') as X_file:
-        X_file.create_dataset("sinusoids", data=s_te)
-    
-    # labels file
-    with h5py.File(Path(output_filepath) / 'y_train.hdf5', 'w') as y_file:
-        y_file.create_dataset("frequencies", data=f_tr)
-        y_file.create_dataset("amplitudes", data=a_tr)
-        y_file.create_dataset("phases", data=p_tr)
-    # labels file
-    with h5py.File(Path(output_filepath) / 'y_test.hdf5', 'w') as y_file:
-        y_file.create_dataset("frequencies", data=f_te)
-        y_file.create_dataset("amplitudes", data=a_te)
-        y_file.create_dataset("phases", data=p_te)
+        # update remainder and percentages
+        remainder = splits[1::2]
+        percent[i+1:] = [min(value / (1-percent[i]),1) for value in percent[i+1:]]
 
-    
-    logger.info('completed splitting dataset into (train, test) = ({},{})'.format(len(f_tr), len(f_te)))
-        
+    logger.info(f'completed splitting dataset into {suffixes} = ({[int(N*p) for p in cfg["percent"]]})')
 
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'

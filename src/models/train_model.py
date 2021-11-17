@@ -50,7 +50,7 @@ class Training:
         self.setup_ignite()
 
     def setup_cuda(self, cuda_device_id=0):
-        torch.backends.cuda.fastest = True
+        torch.backends.cuda.fasval = True
         torch.cuda.set_device(cuda_device_id)
         self.device = torch.device('cuda')
         torch.cuda.manual_seed_all(self.seed)
@@ -127,7 +127,7 @@ class Training:
             logging.info(
                 f'Avg validation loss: {engine.state.metrics["loss"]}')
 
-    def train(self, train_loader, test_loader, model_save_path):
+    def train(self, train_loader, val_loader, model_save_path):
         self.model_save_path = model_save_path
         self.loss_list = []
 
@@ -135,7 +135,7 @@ class Training:
         def on_epoch_complete(engine):
             logging.info(
                 f'Training epoch {engine.state.epoch} complete. Avg training loss: {engine.state.metrics["loss"]}')
-            self.evaluator.run(test_loader)
+            self.evaluator.run(val_loader)
         self.trainer.run(train_loader, self.num_epoch)
 
     def setup_tensorboard(self, folder_name, save_path, **kwargs):
@@ -163,18 +163,18 @@ def main(data_path, experiment_cfg_path):
     dataset_name_prefix = cfg['dataset']['name']
     train_dataset = src.data.load_dataset.Waveform_dataset(
         data_path, '{}_train.hdf5'.format(dataset_name_prefix))
-    test_dataset = src.data.load_dataset.Waveform_dataset(
-        data_path, '{}_test.hdf5'.format(dataset_name_prefix))
+    val_dataset = src.data.load_dataset.Waveform_dataset(
+        data_path, '{}_val.hdf5'.format(dataset_name_prefix))
     train_loader = torch.utils.data.dataloader.DataLoader(
         dataset=train_dataset, **cfg['train_loader'])
-    test_loader = torch.utils.data.dataloader.DataLoader(
-        dataset=test_dataset, **cfg['test_loader'])
+    val_loader = torch.utils.data.dataloader.DataLoader(
+        dataset=val_dataset, **cfg['val_loader'])
 
     # model
     trainer = Training(cfg)
     model_save_path = Path(cfg['model']['path']) / cfg['model']['name']
 
-    trainer.train(train_loader, test_loader, model_save_path)
+    trainer.train(train_loader, val_loader, model_save_path)
 
 
 if __name__ == '__main__':

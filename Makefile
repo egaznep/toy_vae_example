@@ -36,8 +36,8 @@ requirements: test_environment
 
 ## Make Dataset
 data: requirements
-	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed config/data_generator.yaml
-	$(PYTHON_INTERPRETER) src/data/split_dataset.py data/processed data/processed
+	$(PYTHON_INTERPRETER) src/data/make_dataset.py config/data_generator.yaml data/raw data/processed
+	$(PYTHON_INTERPRETER) src/data/split_dataset.py config/data_splitter.yaml data/processed data/processed
 
 ## Clean Tensorboard reports
 clean_tb:

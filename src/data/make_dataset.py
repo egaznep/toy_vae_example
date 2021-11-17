@@ -52,10 +52,10 @@ def generate_random_sinusoids(seed=0, N=10000, fs=16000, duration=100, frequency
 
 
 @click.command()
+@click.argument('generator_config_path', type=click.Path(exists=True))
 @click.argument('input_filepath', type=click.Path(exists=True))
 @click.argument('output_filepath', type=click.Path())
-@click.argument('generator_config_path', type=click.Path(exists=True))
-def main(input_filepath, output_filepath, generator_config_path):
+def main(generator_config_path, input_filepath, output_filepath):
     """ Runs data processing scripts to turn raw data from (../raw) into
         cleaned data ready to be analyzed (saved in ../processed).
     """
