@@ -14,7 +14,7 @@ model:
     name: &architecture_name VAE
     type: autoencoder.VAE
     num_latent: 2
-    num_input: 100
+    num_input: 32
     convex_factor: &coef 0.05
   optim:
     name: adam
@@ -34,6 +34,8 @@ training:
     verbose: True
 train_loader:
   batch_size: &batch_size 100
+val_loader:
+  batch_size: 5000
 test_loader:
   batch_size: 400
 prediction:

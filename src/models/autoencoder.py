@@ -13,29 +13,23 @@ class VAE(nn.Module):
         self.num_input = num_input
         self.num_latent = num_latent
         self.encoder = torch.nn.Sequential(
-            torch.nn.Linear(num_input, 50),
+            torch.nn.Linear(num_input, 32),
             torch.nn.SiLU(),
-            torch.nn.Dropout(p=0.2),
-            torch.nn.Linear(50, 25),
+            torch.nn.Linear(32, 16),
             torch.nn.SiLU(),
-            torch.nn.Linear(25, 25),
+            torch.nn.Linear(16, 8),
             torch.nn.SiLU(),
-            torch.nn.Linear(25, 12),
-            torch.nn.SiLU(),
-            torch.nn.Linear(12, 2*num_latent)
+            torch.nn.Linear(8, 2*num_latent),
         )
 
         self.decoder = torch.nn.Sequential(
-            torch.nn.Linear(num_latent, 12), 
+            torch.nn.Linear(num_latent, 8), 
             torch.nn.SiLU(),
-            torch.nn.Linear(12, 25),
+            torch.nn.Linear(8, 16),
             torch.nn.SiLU(),
-            torch.nn.Linear(25, 25),
+            torch.nn.Linear(16, 32),
             torch.nn.SiLU(),
-            torch.nn.Dropout(p=0.2),
-            torch.nn.Linear(25, 50),
-            torch.nn.SiLU(),
-            torch.nn.Linear(50, num_input),
+            torch.nn.Linear(32, num_input),
         )
         self.N = torch.distributions.kl.MultivariateNormal(torch.Tensor([[0]]),torch.Tensor([[1]]))
         self.Z = torch.distributions.kl.MultivariateNormal(torch.Tensor([[0]]),torch.Tensor([[1]]))
