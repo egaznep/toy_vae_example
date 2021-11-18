@@ -17,6 +17,7 @@ import ignite.engine
 import ignite.metrics
 import ignite.contrib.handlers
 import ignite.contrib.handlers.tensorboard_logger
+import ignite.contrib.handlers.tqdm_logger
 import ignite.handlers.param_scheduler
 
 from copy import deepcopy
@@ -86,6 +87,10 @@ class Training:
         # prevent messages from cluttering the log
         self.trainer.logger.setLevel(logging.WARN)
         self.evaluator.logger.setLevel(logging.WARN)
+
+        # progress bar
+        pbar = ignite.contrib.handlers.tqdm_logger.ProgressBar()
+        pbar.attach(self.trainer)
 
         # save graph to tensorboard
         self.tb_logger.writer.add_graph(self.model, self.dummy_input)
