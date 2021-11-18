@@ -82,8 +82,8 @@ def main(data_path, experiment_cfg_path):
     # config loader
     cfg = load_config(experiment_cfg_path) 
     N = cfg['prediction']['num_samples']
-    # TODO: load this too
-    t = np.arange(100)/16000
+    L = cfg['model']['architecture']['num_input']
+    t = np.arange(L)/16000
 
     # data loader
     dataset_name_prefix = cfg['dataset']['name']
