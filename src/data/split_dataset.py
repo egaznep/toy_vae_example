@@ -54,7 +54,6 @@ def main(config_path, input_filepath, output_filepath):
     remainder = [arrays[x] for x in arrays]
     for i, (suffix, per) in enumerate(zip(suffixes,percent)):
         # split
-        print('Aye!', len(suffixes), len(arrays), percent, i, per)
         if i == len(suffixes)-1:
             current_split = remainder
         else:
@@ -62,7 +61,6 @@ def main(config_path, input_filepath, output_filepath):
             current_split = splits[::2]
         # save current
         for split,entry in zip(current_split,arrays):
-            print(len(split), suffix, entry)
             if entry not in label_arrays:
                 with h5py.File(Path(output_filepath) / f'X_{suffix}.hdf5', 'a') as X_file:
                     X_file.create_dataset(entry, data=split)
