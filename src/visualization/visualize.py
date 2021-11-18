@@ -3,6 +3,8 @@ import matplotlib.animation as anim
 
 import numpy as np
 
+import sklearn.manifold
+
 from src.common import find_limits, merge_into_flat_one
 
 def visualize_signal_pairs(t, inputs, results, labels=None, N=None):
@@ -22,6 +24,40 @@ def visualize_signal_pairs(t, inputs, results, labels=None, N=None):
     plt.suptitle('Input & Outputs', fontsize=26)
     plt.tight_layout()
     plt.show()
+
+def visualize_latent_space(latent_space, features=None):
+    # if more than 2 dimension apply t-SNE to reduce
+    if latent_space.shape[-1] > 2:
+        ls_reduced = sklearn.manifold.TSNE(latent_space)
+        xaxis='TSNE - \phi'
+    # if 2 dimension then just copy original
+    else:
+        ls_reduced = latent_space.copy()
+        xaxis='\phi'
+
+    # then plot (iterate over features if available)
+    if features is not None:
+        N = len(features)
+        plt.figure(figsize=(8,8))
+        for i,f in enumerate(features):
+            plt.subplot(N,1,i+1)
+            plt.scatter(latent_space[:,0], latent_space[:,1], c=features[f])
+            plt.title(f'{f}')
+            plt.xlabel(f'${xaxis}_1$')
+            plt.ylabel(f'${xaxis}_2$')
+            plt.colorbar()
+        plt.suptitle('Latent Space Visualization against Features', fontsize=20)
+        plt.tight_layout()
+        plt.show()
+    else:
+        plt.figure(figsize=(8,8))
+        plt.scatter(latent_space[:,0], latent_space[:,1])
+        plt.title(f'Latent Space Visualization')
+        plt.xlabel(f'${xaxis}_1$')
+        plt.ylabel(f'${xaxis}_2$')
+        plt.tight_layout()
+        plt.show()
+
 
 def animate_signal_pairs(t, inputs, results, labels=None):
     fig = plt.figure(figsize=(8,8))
